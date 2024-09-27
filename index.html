@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽奖活动</title>
+    <style>
+        body {
+            background-color: #ff4d4d;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: yellow;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #fileInput {
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #winner {
+            font-size: 2em;
+            margin-top: 20px;
+            height: 2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>抽奖活动</h1>
+        <input type="file" id="fileInput" accept=".xlsx">
+        <button onclick="startDraw()">开始抽奖</button>
+        
+        <div id="winner">？？？</div>
+
+        <!-- 鼓声音频 -->
+        <audio id="drumSound">
+            <source src="your-drum-roll-sound.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let participants = [];
+        let interval;
+        let animationTime = 3000;  // 滚动动画时长 (3秒)
+
+        // 读取Excel文件
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                participants = jsonData.flat().filter(name => name);
+                alert('名字已导入！');
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+
+        // 开始抽奖
+        function startDraw() {
+            if (participants.length === 0) {
+                alert('请先导入名字！');
+                return;
+            }
+
+            // 播放鼓声
+            const drumSound = document.getElementById('drumSound');
+            drumSound.play();
+
+            // 开始名字滚动动画
+            startNameAnimation();
+
+            // 在鼓声结束（或设定时间后）停止动画并显示最终获奖者
+            setTimeout(() => {
+                stopNameAnimation();
+                revealWinner();
+            }, animationTime); // 鼓声持续3秒后停止
+        }
+
+        // 名字滚动动画
+        function startNameAnimation() {
+            const winnerDiv = document.getElementById('winner');
+            let index = 0;
+
+            interval = setInterval(() => {
+                winnerDiv.innerText = participants[index];
+                index = (index + 1) % participants.length;
+            }, 100); // 每0.1秒切换名字
+
+            winnerDiv.style.opacity = 1; // 动画过程中保持可见
+        }
+
+        // 停止滚动动画
+        function stopNameAnimation() {
+            clearInterval(interval);
+        }
+
+        // 揭晓最终获奖者
+        function revealWinner() {
+            const randomIndex = Math.floor(Math.random() * participants.length);
+            const winner = participants[randomIndex];
+
+            const winnerDiv = document.getElementById('winner');
+            winnerDiv.innerText = `恭喜 ${winner} 获奖！`;
+
+            // 渐隐获奖者名字显示
+            winnerDiv.style.opacity = 0;
+            setTimeout(() => {
+                winnerDiv.style.opacity = 1;
+            }, 100);
+        }
+    </script>
+</body>
+</html>
