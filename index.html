@@ -6,7 +6,6 @@
     <title>抽奖活动</title>
     <style>
         body {
-            background-color: #ff4d4d;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
@@ -61,11 +60,17 @@
             opacity: 0;
             transition: opacity 0.5s ease;
         }
+        body {
+            background-image: url('bg.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: 100% 100%;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>抽奖活动</h1>
+        <h1></h1>
         <input type="file" id="fileInput" accept=".xlsx">
         <button onclick="startDraw()">开始抽奖</button>
         
@@ -73,7 +78,7 @@
 
         <!-- 鼓声音频 -->
         <audio id="drumSound">
-            <source src="your-drum-roll-sound.mp3" type="audio/mpeg">
+            <source src="Drumroll-sound-effect.mp3" type="audio/mpeg">
         </audio>
     </div>
 
@@ -81,7 +86,7 @@
     <script>
         let participants = [];
         let interval;
-        let animationTime = 3000;  // 滚动动画时长 (3秒)
+        let animationTime = 4100;  // 滚动动画时长 (3秒)
 
         // 读取Excel文件
         document.getElementById('fileInput').addEventListener('change', function (event) {
